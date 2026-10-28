@@ -1,0 +1,22 @@
+# Configuration
+config:
+  # MD013 - line-length
+  line_length:
+    line_length: 120
+    code_blocks: false
+    tables: false
+  html:
+    allowed_elements:
+      - div
+
+globs:
+  - "**/*.md"
+  - "**/*.qmd"
+
+ignore:
+  - ".quarto/**/*.md"
+  - "_site/**/*.md"
+  - "renv/**/*.md"
+
+# Fix any fixable errors
+fix: true
