@@ -1,11 +1,11 @@
 ---
-title: "Template Revealjs Quarto site"
+title: "Pytest Marks"
 # format: revealjs
 author:
-  - name: Your Name
-    orcid: 0000-0000-0000-0000
-    email: email@address.work
-    affiliations: Employers Name
+  - name: Neil Shephard
+    orcid: 0000-0001-8301-6857
+    email: n.shephard@sheffield.ac.uk
+    affiliations: Research Software Engineering, Computer Science, University of Sheffield
 from: markdown+emoji
 format:
   clean-revealjs:
@@ -17,9 +17,10 @@ format:
     # embed-resources: true
     # standalone: true
     header: Quarto RevealJS Template
+    scrollable: true
 revealjs-plugins:
   - confetti
-footer: "**Slides** : [**github-username.github.io/<repository>**](https://github-username.github.io/<repository>)"
+footer: "**Slides** : [**ns-rse.github.io/pytest-marks**](https://ns-rse.github.io/pytest-marks)"
 project:
   preview:
     port: 7864
@@ -32,307 +33,354 @@ filters:
 
 ## Scan This
 
-{{< qrcode <https://ns-rse.github.io/quarto-revealjs-template> qr1 width=400 height=400 >}}
+{{< qrcode <https://ns-rse.github.io/pytest-marks> qr1 width=400 height=400 >}}
 
-[ns-rse.github.io/quarto-revealjs-template](https://ns-rse.github.io/quarto-revealjs-template)
+[ns-rse.github.io/pytest-marks](https://ns-rse.github.io/pytest-marks)
 
-## Quarto RevealJS Slides
 
-This is a [Quarto](https://quarto.org/) template for creating [RevealJS](https://revealjs.com/) slides.
+## Pytest
 
-The template can be used as a starting point for your own slides and includes a number of different layouts and examples
-of Markdown syntax, slide layout, links, embedding images and configuration options.
+- [Pytest](https://docs.pytest.org/en/stable/) alternative to [unittest](https://docs.python.org/3/library/unittest.html)
+- Extensible (lots of [plugins](https://docs.pytest.org/en/stable/reference/plugin_list.html))
+- Easy to setup fixtures.
+- Easy to parameterise.
 
-## Formatting
+### Why?
 
-Quarto slides are written in [Markdown](https://quarto.org/docs/authoring/markdown-basics.html).
+- Something useful to share.
+- I already wrote a [blog post](https://blog.nshephard.dev/posts/pytest-markers/).
 
-| Markdown Syntax                              | Output                                |
-|:---------------------------------------------|:--------------------------------------|
-| `*italics*`, `**bold**`, `***bolditalics***` | *italics*, **bold**, **bold italics** |
-| `superscript^1^`, `subscript~2~`             | superscript^1^, subscript~2~          |
-| `~~strikethrough~~`                          | ~~strikethrough~~                     |
-| ```code```                                   | `code`                                |
-| `[Quarto](https://quarto.org)`               | [Quarto](https://quarto.org)          |
+## Test Development
 
-::: {.notes}
-Speaker Notes can be added to each slide. **Formatting** can be used here too.
-:::
+- Don't always want to run the whole test suite during development
+- Run a single test (`test_slow`)[^emacs]...
 
-## Columns and Lists
+```shell
+pytest tests/test_something.py::test_slow
+```
 
-Slides can have columns and you can create [lists](https://quarto.org/docs/authoring/markdown-basics.html#lists) of
-different types.
+- Doesn't exclude `test_slow` from the whole suite.
+- If `test_slow` takes a long time running whole suite delays feedback.
+- **Solution** - Create your own marks to select which tests are run
+
+[^emacs]: Can dispatch individual tests from within Emacs using
+[python-pytest](https://github.com/wbolster/emacs-python-pytest) 😉
+
+## Example - Test with marks
+
+```python
+import time
+import pytest
+
+@pytest.mark.slow
+def test_slow() -> None:
+    """A dummy test that takes a an hour to run."""
+    time.sleep(60*60)
+    pass
+
+def test_quick() -> None:
+    """A dummy test that takes 2 seconds to run."""
+    time.sleep(2)
+    pass
+
+def test_very_fast() -> None:
+    """A dummy test that takes 1 second to run."""
+    time.sleep(1)
+    pass
+```
+
+## Example - Selectively run tests based on marks
+
+```shell
+# Run just `test_slow` that is marked with 'slow'
+pytest -v -m "slow"
+# Run all other tests that are not marked 'slow'
+pytest -v -m "not slow"
+```
+
+## Configure via `pyproject.toml`
+
+Configure project to exclude slow tests by default.
+
+```toml
+[tool.pytest]
+addopts = ["-m", "not slow"]
+markers = [
+  "slow: marks slow tests (deselect with '-m \"not slow\")",
+]
+```
+
+## Automatically add markers
+
+- Structured nomenclature of tests to indicates what the tests are doing allows [automation of adding
+markers](https://docs.pytest.org/en/stable/example/markers.html#automatically-adding-markers-based-on-test-names) based
+  on test names.
+
+```python
+def test_func_function1():
+    pass
+
+def test_func_function2():
+    pass
+
+def test_exception_keyerror():
+    with pytest.raises(KeyError):
+        {"a": 0, "b": 1}["not a key"]
+
+def test_exception_indexerror():
+    with pytest.raises(IndexError):
+        [0, 1, 2][3]
+```
+
+## Configure via `conftest.py`
 
 :::: {.columns}
 
-::: {.column width="50%"}
-**ToDo** (code)
 
-```markdown
-+ Learn Markdown
-+ Create Quarto Slides
-+ Publish on GitHub
+::: {.column width="50%"}
+```python
+import pytest
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if "func" in item.nodeid:
+            item.add_marker(
+                pytest.mark.func
+            )
+        elif "exception" in item.nodeid:
+            item.add_marker(
+                pytest.mark.exception
+            )
 ```
 
 :::
 
 ::: {.column width="50%"}
-**ToDo** (Rendered)
 
-+ Learn Markdown
-+ Create Quarto Slides
-+ Publish on GitHub
+
+- `@pytest.mark.func` added if test function includes `func`.
+- `@pytest.mark.exception` added if test function includes `exception`.
 
 :::
 ::::
 
-::: {.notes}
-Slides can have columns and we can create unordered lists.
-:::
+## Update `pyproject.toml`
 
-## Columns and Lists (cont.)
-
-:::: {.columns}
-
-::: {.column width="50%"}
-**Ordered** (code)
-
-```markdown
-1. A comes before
-2. B which is followed by
-3. C
+```toml
+[tool.pytest]
+  addopts = ["-m", "not slow"]
+  markers = [
+    "slow: marks slow tests (deselect with '-m \"not slow\")",
+    "func: marks tests of functions (dselect with '-m \"not func\")"
+    "exceptions: marks tests of exceptions (dselect with '-m \"not exceptions\")"
+  ]
 ```
 
-:::
 
-::: {.column width="50%"}
-**Ordered** (Rendered)
+## What marks are there?
 
-1. A comes before
-2. B which is followed by
-3. C
+- Marks may grow over time.
+- Use `pytest --marks` to list.
 
-:::
-::::
 
-::: {.notes}
-Or ordered lists.
-:::
+## `@pytest.mark.skip`
 
-## Tables
-
-You can manually add [tables](https://quarto.org/docs/authoring/markdown-basics.html#tables).
+- Skip an individual test.
+- `@pytest.mark.skip(reason="Don't like this test!")`
 
 :::: {.columns}
 
 ::: {.column width="50%"}
 
-```markdown
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
-|    1  |    1 |     1   |     1  |
-```
+Whole function
 
-:::
-::: {.column width="50%"}
-
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
-|    1  |    1 |     1   |     1  |
-
-:::
-::::
-
-::: {.notes}
-Tables can be added, but there is a better way to include these programatically
-:::
-
-## Equations
-
-| Markdown Syntax                    | Output                       |
-|:----------------------------------:|:-----------------------------|
-| `inline math $E = mc^{2}$`         | inline math $E = mc^{2}$     |
-| ```display math: $$E = mc^{2}$$``` | display math: $$E = mc^{2}$$ |
-
-::: {.notes}
-You can write equations if you need to.
-:::
-
-## Embed Images
-
-[Figures](https://quarto.org/docs/authoring/figures.html) can be embeded using a URL and resized.
-
-```markdown
-![Relaxing in the Julian Alps](https://live.staticflickr.com/65535/53144704609_c5e6fa8c77_k.jpg){width=700}
-```
-
-![Relaxing in the Julian Alps](https://live.staticflickr.com/65535/53144704609_c5e6fa8c77_k.jpg){width=700}
-
-::: {.notes}
-:::
-
-## Embed Images (*cont.*)
-
-You can also include images locally.^[Make sure to `git add` them otherwise they won't publish] and make them hyperlinks.
-
-```markdown
-![[OSC Sheffield](https://osc-international.com/osc-sheffield)](img/OSC_Sheffield.png){width=300}
-```
-
-![[OSC Sheffield](https://osc-international.com/osc-sheffield)](img/OSC_Sheffield.png){width=300}
-
-::: {.notes}
-:::
-
-## R code
-
-:::: {.columns}
-
-::: {.column width="50%"}
-Include [R code and output](https://quarto.org/docs/computations/r.html) with automatic referencing (see @fig-airquality2)
-
-```{r}
-#| label: fig-airquality
-#| fig-cap: "Temperature and ozone level."
-#| warning: false
-#| eval: false
-#| echo: true
-library(ggplot2)
-
-ggplot(airquality, aes(Temp, Ozone)) +
-  geom_point() +
-  geom_smooth(method = "loess")
-```
-
-:::
-::: {.column width="50%"}
-
-```{r}
-#| label: fig-airquality2
-#| fig-cap: "Temperature and ozone level."
-#| warning: false
-
-library(ggplot2)
-
-ggplot(airquality, aes(Temp, Ozone)) +
-  geom_point() +
-  geom_smooth(method = "loess")
-```
-
-:::
-
-::::
-
-::: {.notes}
-[R](https://www.r-project.org/) code can be embeded and executed to produce tables and figures.
-:::
-
-## Python code
-
-::: {.column width="50%"}
-Include [Python code and output](https://quarto.org/docs/computations/python.html) too
-
-```{.python}
-#| label: fig-polar
-#| fig-cap: "A line plot on a polar axis."
-#| warning: false
-#| eval: false
-#| echo: true
-import numpy as np
-import matplotlib.pyplot as plt
-
-r = np.arange(0, 2, 0.01)
-theta = 2 * np.pi * r
-fig, ax = plt.subplots(
-  subplot_kw = {'projection': 'polar'}
+```python
+@pytest.mark.skip(
+    reason="Don't like this test!"
 )
-ax.plot(theta, r)
-ax.set_rticks([0.5, 1, 1.5, 2])
-ax.grid(True)
-plt.show()
+def test_func_function1() -> None:
+    pass
+
 ```
 
 :::
+
 ::: {.column width="50%"}
 
-```{.python}
-#| label: fig-polar2
-#| fig-cap: "A line plot on a polar axis."
-#| warning: false
-#| eval: true
-#| echo: true
-import numpy as np
-import matplotlib.pyplot as plt
+Individual paramterised sets
 
-r = np.arange(0, 2, 0.01)
-theta = 2 * np.pi * r
-fig, ax = plt.subplots(
-  subplot_kw = {'projection': 'polar'}
+```python
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param(
+            "a",
+            id="test1"
+        ),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.skip(
+                reason="Don't like this test!"
+            )
+        ),
+    ]
 )
-ax.plot(theta, r)
-ax.set_rticks([0.5, 1, 1.5, 2])
-ax.grid(True)
-plt.show()
-```
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
 
+```
 :::
 ::::
 
-::: {.notes}
-You can include [Python](https://www.python.org) code too
-:::
+## `@pytest.mark.xfail`
 
-## General code
+- `@pytest.mark.xfail(reason="I know this test fails!")`
 
-There are lots of options for showing, hiding, highlighting [code
-blocks](https://quarto.org/docs/presentations/revealjs/#code-blocks).
-
-```{.python code-line-numbers="6-8"}
-#| eval: true
-#| echo: true
-import numpy as np
-import matplotlib.pyplot as plt
-
-r = np.arange(0, 2, 0.01)
-theta = 2 * np.pi * r
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-ax.plot(theta, r)
-ax.set_rticks([0.5, 1, 1.5, 2])
-ax.grid(True)
-plt.show()
-```
-
-## The Documentation is Good
-
-The official documentation is really good.
-
-+ [Get Started](https://quarto.org/docs/get-started/)
-+ [Markdown Basics](https://quarto.org/docs/authoring/markdown-basics.html)
-+ [Guide](https://quarto.org/docs/guide/) with many sections on [Presentations](https://quarto.org/docs/presentations/)
-  [Website](https://quarto.org/docs/websites/), [Books](https://quarto.org/docs/books/) and more.
-
-## Extensions
 
 :::: {.columns}
 
-::: {.column width="70%"}
-[Extensions](https://quarto.org/docs/extensions/) for themes and other functionality
-(press `c` whilst viewing these slides :wink: ).
+::: {.column width="50%"}
 
-+ [Shortcode/Filter](https://quarto.org/docs/extensions/listing-filters.html)
-+ [Journal Articles](https://quarto.org/docs/extensions/listing-journals.html)
-+ [Custom Formats](https://quarto.org/docs/extensions/listing-formats.html)
-+ [**RevealJS**](https://quarto.org/docs/extensions/listing-revealjs.html)
-+ [awesome-quarto](https://github.com/mcanouil/awesome-quarto) - Quarto tools & examples
+Whole function
+
+```python
+@pytest.mark.xfail(
+    reason="I know this test fails!"
+)
+def test_func_function1() -> None:
+    pass
+
+```
 
 :::
-::: {.column width=30%}
-This Template...
-{{< qrcode <https://ns-rse.github.io/quarto-revealjs-template> qr2 width=400 height=400 >}}
+
+::: {.column width="50%"}
+
+Individual paramterised sets
+
+```python
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param("a", id="test1"),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.xfail(
+                reason="I know this test fails!"
+            )
+        ),
+    ]
+)
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
+
+```
+
 :::
 ::::
+
+
+## `@pytest.mark.skipif`
+
+- `@pytest.mark.skipif(reason="Don't like this test!")`
+- Useful if you now a test always fails on CI in a particular environment or Python version.
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Whole function
+
+```python
+import os
+import platform
+
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+OSX = platform.system() == "Darwin"
+
+@pytest.mark.skipif(
+    GITHUB_ACTIONS and OSX,
+    reason="Test fails in CI on OSX!")
+def test_func_function1() -> None:
+    pass
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Individual paramterised sets
+
+```python
+import os
+import platform
+
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+OSX = platform.system() == "Darwin"
+
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param(
+            "a",
+            id="test1"
+        ),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.skipif(
+                GITHUB_ACTIONS and OSX,
+                reason="Test fails in CI on OSX!"
+            )
+        ),
+    ]
+)
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
+
+```
+
+:::
+::::
+
+## [Pytest testmon](https://www.testmon.org/)
+
+- Changes typically small
+- Only impact subset of tests
+- 🪄 [Pytest testmon](https://www.testmon.org/) 🪄
+
+> a pytest plugin which selects and executes only tests you need to run. It does this by collecting dependencies between
+>  tests and all executed code (internally using Coverage.py) and comparing the dependencies against changes. testmon
+>  updates its database on each test execution, so it works independently of version control.
+
+```toml
+[dependency-groups]
+tests = [
+  ...
+  "pytest-testmon"
+  ...
+]
+```
+
+## As a `pre-commit` hook
+
+- On commits `pytest --testmon` run only on affected changes.
+
+```yaml
+   - repo: local
+     hooks:
+       - id: pytest
+         name: Pytest (testmon)
+         entry: pytest --testmon
+         language: system
+         files: \.py$
+```
+
+## Summary
+
+- Lots of different strategies for managing test suite!
+- Structured nomenclature of tests can be very useful.
+- Use any or many of these to speed up the feedback loop.
