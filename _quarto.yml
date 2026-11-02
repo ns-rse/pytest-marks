@@ -1,0 +1,7 @@
+project:
+  type: website
+
+website:
+  title: "Pytest Marks"
+  site-url: https://ns-rse.github.io/pytest-marks
+  description: "Selectively running tests with pytest marks."

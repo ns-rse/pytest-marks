@@ -1,0 +1,386 @@
+---
+title: "Pytest Marks"
+# format: revealjs
+author:
+  - name: Neil Shephard
+    orcid: 0000-0001-8301-6857
+    email: n.shephard@sheffield.ac.uk
+    affiliations: Research Software Engineering, Computer Science, University of Sheffield
+from: markdown+emoji
+format:
+  clean-revealjs:
+    incremental: false
+    slide-number: true
+    show-slide-number: speaker
+    auto-stretch: false
+    chalkboard: true
+    # embed-resources: true
+    # standalone: true
+    header: Quarto RevealJS Template
+    scrollable: true
+revealjs-plugins:
+  - confetti
+footer: "**Slides** : [**ns-rse.github.io/pytest-marks**](https://ns-rse.github.io/pytest-marks)"
+project:
+  preview:
+    port: 7864
+    host: localhost
+    watch-inputs: true
+filters:
+  - openlinksinnewpage
+  - reveal-header
+---
+
+## Scan This
+
+{{< qrcode <https://ns-rse.github.io/pytest-marks> qr1 width=400 height=400 >}}
+
+[ns-rse.github.io/pytest-marks](https://ns-rse.github.io/pytest-marks)
+
+
+## Pytest
+
+- [Pytest](https://docs.pytest.org/en/stable/) alternative to [unittest](https://docs.python.org/3/library/unittest.html)
+- Extensible (lots of [plugins](https://docs.pytest.org/en/stable/reference/plugin_list.html))
+- Easy to setup fixtures.
+- Easy to parameterise.
+
+### Why?
+
+- Something useful to share.
+- I already wrote a [blog post](https://blog.nshephard.dev/posts/pytest-markers/).
+
+## Test Development
+
+- Don't always want to run the whole test suite during development
+- Run a single test (`test_slow`)[^emacs]...
+
+```shell
+pytest tests/test_something.py::test_slow
+```
+
+- Doesn't exclude `test_slow` from the whole suite.
+- If `test_slow` takes a long time running whole suite delays feedback.
+- **Solution** - Create your own marks to select which tests are run
+
+[^emacs]: Can dispatch individual tests from within Emacs using
+[python-pytest](https://github.com/wbolster/emacs-python-pytest) 😉
+
+## Example - Test with marks
+
+```python
+import time
+import pytest
+
+@pytest.mark.slow
+def test_slow() -> None:
+    """A dummy test that takes a an hour to run."""
+    time.sleep(60*60)
+    pass
+
+def test_quick() -> None:
+    """A dummy test that takes 2 seconds to run."""
+    time.sleep(2)
+    pass
+
+def test_very_fast() -> None:
+    """A dummy test that takes 1 second to run."""
+    time.sleep(1)
+    pass
+```
+
+## Example - Selectively run tests based on marks
+
+```shell
+# Run just `test_slow` that is marked with 'slow'
+pytest -v -m "slow"
+# Run all other tests that are not marked 'slow'
+pytest -v -m "not slow"
+```
+
+## Configure via `pyproject.toml`
+
+Configure project to exclude slow tests by default.
+
+```toml
+[tool.pytest]
+addopts = ["-m", "not slow"]
+markers = [
+  "slow: marks slow tests (deselect with '-m \"not slow\")",
+]
+```
+
+## Automatically add markers
+
+- Structured nomenclature of tests to indicates what the tests are doing allows [automation of adding
+markers](https://docs.pytest.org/en/stable/example/markers.html#automatically-adding-markers-based-on-test-names) based
+  on test names.
+
+```python
+def test_func_function1():
+    pass
+
+def test_func_function2():
+    pass
+
+def test_exception_keyerror():
+    with pytest.raises(KeyError):
+        {"a": 0, "b": 1}["not a key"]
+
+def test_exception_indexerror():
+    with pytest.raises(IndexError):
+        [0, 1, 2][3]
+```
+
+## Configure via `conftest.py`
+
+:::: {.columns}
+
+
+::: {.column width="50%"}
+```python
+import pytest
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if "func" in item.nodeid:
+            item.add_marker(
+                pytest.mark.func
+            )
+        elif "exception" in item.nodeid:
+            item.add_marker(
+                pytest.mark.exception
+            )
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+- `@pytest.mark.func` added if test function includes `func`.
+- `@pytest.mark.exception` added if test function includes `exception`.
+
+:::
+::::
+
+## Update `pyproject.toml`
+
+```toml
+[tool.pytest]
+  addopts = ["-m", "not slow"]
+  markers = [
+    "slow: marks slow tests (deselect with '-m \"not slow\")",
+    "func: marks tests of functions (dselect with '-m \"not func\")"
+    "exceptions: marks tests of exceptions (dselect with '-m \"not exceptions\")"
+  ]
+```
+
+
+## What marks are there?
+
+- Marks may grow over time.
+- Use `pytest --marks` to list.
+
+
+## `@pytest.mark.skip`
+
+- Skip an individual test.
+- `@pytest.mark.skip(reason="Don't like this test!")`
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Whole function
+
+```python
+@pytest.mark.skip(
+    reason="Don't like this test!"
+)
+def test_func_function1() -> None:
+    pass
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Individual paramterised sets
+
+```python
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param(
+            "a",
+            id="test1"
+        ),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.skip(
+                reason="Don't like this test!"
+            )
+        ),
+    ]
+)
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
+
+```
+:::
+::::
+
+## `@pytest.mark.xfail`
+
+- `@pytest.mark.xfail(reason="I know this test fails!")`
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Whole function
+
+```python
+@pytest.mark.xfail(
+    reason="I know this test fails!"
+)
+def test_func_function1() -> None:
+    pass
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Individual paramterised sets
+
+```python
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param("a", id="test1"),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.xfail(
+                reason="I know this test fails!"
+            )
+        ),
+    ]
+)
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
+
+```
+
+:::
+::::
+
+
+## `@pytest.mark.skipif`
+
+- `@pytest.mark.skipif(reason="Don't like this test!")`
+- Useful if you now a test always fails on CI in a particular environment or Python version.
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Whole function
+
+```python
+import os
+import platform
+
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+OSX = platform.system() == "Darwin"
+
+@pytest.mark.skipif(
+    GITHUB_ACTIONS and OSX,
+    reason="Test fails in CI on OSX!")
+def test_func_function1() -> None:
+    pass
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Individual paramterised sets
+
+```python
+import os
+import platform
+
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+OSX = platform.system() == "Darwin"
+
+@pytest.mark.parameterise(
+    ("string"),
+    [
+        pytest.param(
+            "a",
+            id="test1"
+        ),
+        pytest.param(
+            2,
+            id="test2",
+            marks=pytest.mark.skipif(
+                GITHUB_ACTIONS and OSX,
+                reason="Test fails in CI on OSX!"
+            )
+        ),
+    ]
+)
+def test_func_function1(string: str) -> None:
+    assert isinstance(string, str)
+
+```
+
+:::
+::::
+
+## [Pytest testmon](https://www.testmon.org/)
+
+- Changes typically small
+- Only impact subset of tests
+- 🪄 [Pytest testmon](https://www.testmon.org/) 🪄
+
+> a pytest plugin which selects and executes only tests you need to run. It does this by collecting dependencies between
+>  tests and all executed code (internally using Coverage.py) and comparing the dependencies against changes. testmon
+>  updates its database on each test execution, so it works independently of version control.
+
+```toml
+[dependency-groups]
+tests = [
+  ...
+  "pytest-testmon"
+  ...
+]
+```
+
+## As a `pre-commit` hook
+
+- On commits `pytest --testmon` run only on affected changes.
+
+```yaml
+   - repo: local
+     hooks:
+       - id: pytest
+         name: Pytest (testmon)
+         entry: pytest --testmon
+         language: system
+         files: \.py$
+```
+
+## Summary
+
+- Lots of different strategies for managing test suite!
+- Structured nomenclature of tests can be very useful.
+- Use any or many of these to speed up the feedback loop.
