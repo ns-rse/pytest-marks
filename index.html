@@ -348,18 +348,18 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <span id="cb8-2"><a aria-label="2"></a></span>
 <span id="cb8-3"><a aria-label="3"></a><span class="kw">def</span> pytest_collection_modifyitems(items):</span>
 <span id="cb8-4"><a aria-label="4"></a>    <span class="cf">for</span> item <span class="kw">in</span> items:</span>
-<span id="cb8-5"><a aria-label="5"></a>        <span class="cf">if</span> <span class="st">"func"</span> <span class="kw">in</span> item.nodeid:</span>
+<span id="cb8-5"><a aria-label="5"></a>        <span class="cf">if</span> <span class="st">"_func_"</span> <span class="kw">in</span> item.nodeid:</span>
 <span id="cb8-6"><a aria-label="6"></a>            item.add_marker(</span>
 <span id="cb8-7"><a aria-label="7"></a>                pytest.mark.func</span>
 <span id="cb8-8"><a aria-label="8"></a>            )</span>
-<span id="cb8-9"><a aria-label="9"></a>        <span class="cf">elif</span> <span class="st">"exception"</span> <span class="kw">in</span> item.nodeid:</span>
+<span id="cb8-9"><a aria-label="9"></a>        <span class="cf">elif</span> <span class="st">"_exception_"</span> <span class="kw">in</span> item.nodeid:</span>
 <span id="cb8-10"><a aria-label="10"></a>            item.add_marker(</span>
 <span id="cb8-11"><a aria-label="11"></a>                pytest.mark.exception</span>
 <span id="cb8-12"><a aria-label="12"></a>            )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <ul>
-<li><code>@pytest.mark.func</code> added if test function includes <code>func</code>.</li>
-<li><code>@pytest.mark.exception</code> added if test function includes <code>exception</code>.</li>
+<li><code>@pytest.mark.func</code> added if test function includes <code>_func_</code>.</li>
+<li><code>@pytest.mark.exception</code> added if test function includes <code>_exception_</code>.</li>
 </ul>
 </div></div>
 </section>

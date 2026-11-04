@@ -60,7 +60,7 @@
     "href": "index.html#configure-via-conftest.py",
     "title": "Organising your Test Suite with Pytest Marks",
     "section": "Configure via conftest.py",
-    "text": "Configure via conftest.py\n\n\nimport pytest\n\ndef pytest_collection_modifyitems(items):\n    for item in items:\n        if \"func\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.func\n            )\n        elif \"exception\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.exception\n            )\n\n\n@pytest.mark.func added if test function includes func.\n@pytest.mark.exception added if test function includes exception."
+    "text": "Configure via conftest.py\n\n\nimport pytest\n\ndef pytest_collection_modifyitems(items):\n    for item in items:\n        if \"_func_\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.func\n            )\n        elif \"_exception_\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.exception\n            )\n\n\n@pytest.mark.func added if test function includes _func_.\n@pytest.mark.exception added if test function includes _exception_."
   },
   {
     "objectID": "index.html#update-pyproject.toml",
