@@ -80,6 +80,8 @@ addopts = [
 ]
 markers = [
   "slow: marks slow testes (deselect with '-m \"not slow\")",
+  "func: marks tests of functions (dselect with '-m \"not func\")",
+  "exceptions: marks tests of exceptions (dselect with '-m \"not exceptions\")",
 ]
 xfail_strict = true
 filterwarnings = [
