@@ -1,5 +1,5 @@
 ---
-title: "Pytest Marks"
+title: "Pytest Marks - Organising your Test Suite"
 # format: revealjs
 author:
   - name: Neil Shephard
@@ -16,7 +16,7 @@ format:
     chalkboard: true
     # embed-resources: true
     # standalone: true
-    header: Quarto RevealJS Template
+    header: Pytest Marks - Organising your Test Suite
     scrollable: true
 revealjs-plugins:
   - confetti
@@ -47,26 +47,27 @@ filters:
 
 ### Why?
 
-- Something useful to share.
+- Something new I learnt I thought would be useful to share.
 - I already wrote a [blog post](https://blog.nshephard.dev/posts/pytest-markers/).
 
 ## Test Development
 
 - Don't always want to run the whole test suite during development
-- Run a single test (`test_slow`)[^emacs]...
+- May have a test that takes a long time e.g. `test-slow`
+- Run _just_ `test_slow`[^emacs]...
 
 ```shell
 pytest tests/test_something.py::test_slow
 ```
 
-- Doesn't exclude `test_slow` from the whole suite.
-- If `test_slow` takes a long time running whole suite delays feedback.
+- Doesn't _exclude_ `test_slow` from the whole suite.
+- If `test_slow` takes a long time running whole suite delays feedback loop.
 - **Solution** - Create your own marks to select which tests are run
 
 [^emacs]: Can dispatch individual tests from within Emacs using
 [python-pytest](https://github.com/wbolster/emacs-python-pytest) 😉
 
-## Example - Test with marks
+## Example - Test with `@pytest.mark.*`
 
 ```python
 import time
@@ -89,6 +90,31 @@ def test_very_fast() -> None:
     pass
 ```
 
+## Configure via `pyproject.toml`
+
+Let `pytest` know about the `slow` marks
+
+```toml
+[tool.pytest]
+markers = [
+  "slow: marks slow tests (deselect with '-m \"not slow\")",
+]
+```
+
+Without...
+
+```shell
+========================= ERRORS ==============================
+____________________________________________________________________________________________________________ ERROR collecting tests/test_example.py ______________
+'slow' not found in `markers` configuration option
+========================= short test summary info ======================
+ERROR tests/test_example.py - Failed: 'slow' not found in `markers`
+configuration option
+========================= 1 error in 0.11s =========================
+ERROR: Unknown marker(s) in '-m' expression: slow. Use
+'pytest --markers' to see available markers.
+```
+
 ## Example - Selectively run tests based on marks
 
 ```shell
@@ -98,7 +124,7 @@ pytest -v -m "slow"
 pytest -v -m "not slow"
 ```
 
-## Configure via `pyproject.toml`
+## Configure permanently via `pyproject.toml`
 
 Configure project to exclude slow tests by default.
 
@@ -109,6 +135,7 @@ markers = [
   "slow: marks slow tests (deselect with '-m \"not slow\")",
 ]
 ```
+
 
 ## Automatically add markers
 
@@ -180,8 +207,36 @@ def pytest_collection_modifyitems(items):
 ## What marks are there?
 
 - Marks may grow over time.
-- Use `pytest --marks` to list.
+- Use `pytest --markers` to list.
+- Many extensions add `@pytest.mark` decorators
 
+```shell
+@pytest.mark.slow: marks slow testes (deselect with '-m "not slow")
+
+@pytest.mark.syrupy_snapshot: test directly or indirectly uses the snapshot fixture
+
+@pytest.mark.no_cover: disable coverage for this test.
+
+@pytest.mark.mpl_image_compare: Compares matplotlib figures against a baseline image
+
+@pytest.mark.filterwarnings(warning): add a warning filter to the given test. see https://docs.pytest.org/en/stable/how-to/capture-warnings.html#pytest-mark-filterwarnings
+
+@pytest.mark.skip(reason=None): skip the given test function with an optional reason. Example: skip(reason="no way of currently testing this") skips the test.
+
+@pytest.mark.skipif(condition, ..., *, reason=...): skip the given test function if any of the conditions evaluate to True. Example: skipif(sys.platform == 'win32') skips the test if we are on the win32 platform. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-skipif
+
+@pytest.mark.xfail(condition, ..., *, reason=..., run=True, raises=None, strict=strict_xfail): mark the test function as an expected failure if any of the conditions evaluate to True. Optionally specify a reason for better reporting and run=False if you don't even want to execute the test function. If only specific exception(s) are expected, you can list them in raises, and if the test fails in other ways, it will be reported as a true failure. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-xfail
+
+@pytest.mark.parametrize(argnames, argvalues): call a test function multiple times passing in different arguments in turn. argvalues generally needs to be a list of values if argnames specifies only one name or a list of tuples of values if argnames specifies multiple names. Example: @parametrize('arg1', [1,2]) would lead to two calls of the decorated test function, one with arg1=1 and another with arg1=2.see https://docs.pytest.org/en/stable/how-to/parametrize.html for more info and examples.
+
+@pytest.mark.usefixtures(fixturename1, fixturename2, ...): mark tests as needing all of the specified fixtures. see https://docs.pytest.org/en/stable/explanation/fixtures.html#usefixtures
+
+@pytest.mark.tryfirst: mark a hook implementation function such that the plugin machinery will try to call it first/as early as possible. DEPRECATED, use @pytest.hookimpl(tryfirst=True) instead.
+
+@pytest.mark.trylast: mark a hook implementation function such that the plugin machinery will try to call it last/as late as possible. DEPRECATED, use @pytest.hookimpl(trylast=True) instead.
+
+@pytest.mark.xdist_group: specify group for tests should run in same session.in relation to one another. Provided by pytest-xdist.
+```
 
 ## `@pytest.mark.skip`
 
@@ -383,4 +438,4 @@ tests = [
 
 - Lots of different strategies for managing test suite!
 - Structured nomenclature of tests can be very useful.
-- Use any or many of these to speed up the feedback loop.
+- Use any or many of these to speed up the feedback loop. 🪄

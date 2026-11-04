@@ -6,18 +6,18 @@
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/quarto-contrib/reveal-header-1.0.0/add_header.js" defer="true"></script>
 <link href="site_libs/quarto-contrib/reveal-header-1.0.0/add_header.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/grid-htext-1.0.0/grid_htext.css" rel="stylesheet">
 <script src="site_libs/quarto-contrib/qrcodejs-v1.0.0/qrcode.js"></script><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.10.19">
+  <meta name="generator" content="quarto-1.11.9">
 
   <meta name="author" content="Neil Shephard">
-  <title>Pytest Marks</title>
+  <title>Pytest Marks – Pytest Marks - Organising your Test Suite</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="site_libs/revealjs/dist/reveal.css">
   <style>
@@ -105,7 +105,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="site_libs/revealjs/dist/theme/quarto-82baa10f15a9971b2942dd8d7adbe90b.css">
+  <link rel="stylesheet" href="site_libs/revealjs/dist/theme/quarto-207652dcfaebc8396d33806fd78ed2fc.css">
   <link href="site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -207,7 +207,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Pytest Marks</h1>
+  <h1 class="title">Pytest Marks - Organising your Test Suite</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -248,7 +248,7 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 </ul>
 <h3 id="why">Why?</h3>
 <ul>
-<li>Something useful to share.</li>
+<li>Something new I learnt I thought would be useful to share.</li>
 <li>I already wrote a <a href="https://blog.nshephard.dev/posts/pytest-markers/" target="_blank">blog post</a>.</li>
 </ul>
 </section>
@@ -256,17 +256,18 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <h2>Test Development</h2>
 <ul>
 <li>Don’t always want to run the whole test suite during development</li>
-<li>Run a single test (<code>test_slow</code>)<sup>1</sup>…</li>
+<li>May have a test that takes a long time e.g.&nbsp;<code>test-slow</code></li>
+<li>Run <em>just</em> <code>test_slow</code><sup>1</sup>…</li>
 </ul>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource shell number-lines code-with-copy"><code class="sourceCode"><span id="cb1-1"><a aria-label="1"></a>pytest tests/test_something.py::test_slow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li>Doesn’t exclude <code>test_slow</code> from the whole suite.</li>
-<li>If <code>test_slow</code> takes a long time running whole suite delays feedback.</li>
+<li>Doesn’t <em>exclude</em> <code>test_slow</code> from the whole suite.</li>
+<li>If <code>test_slow</code> takes a long time running whole suite delays feedback loop.</li>
 <li><strong>Solution</strong> - Create your own marks to select which tests are run</li>
 </ul>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Can dispatch individual tests from within Emacs using <a href="https://github.com/wbolster/emacs-python-pytest" target="_blank">python-pytest</a> 😉</p></li></ol></aside></section>
-<section id="example---test-with-marks" class="slide level2">
-<h2>Example - Test with marks</h2>
+<section id="example---test-with-pytest.mark." class="slide level2">
+<h2>Example - Test with <code>@pytest.mark.*</code></h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a aria-label="1"></a><span class="im">import</span> time</span>
 <span id="cb2-2"><a aria-label="2"></a><span class="im">import</span> pytest</span>
 <span id="cb2-3"><a aria-label="3"></a></span>
@@ -286,57 +287,75 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <span id="cb2-17"><a aria-label="17"></a>    time.sleep(<span class="dv">1</span>)</span>
 <span id="cb2-18"><a aria-label="18"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="example---selectively-run-tests-based-on-marks" class="slide level2">
-<h2>Example - Selectively run tests based on marks</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource shell number-lines code-with-copy"><code class="sourceCode"><span id="cb3-1"><a aria-label="1"></a># Run just `test_slow` that is marked with 'slow'</span>
-<span id="cb3-2"><a aria-label="2"></a>pytest -v -m "slow"</span>
-<span id="cb3-3"><a aria-label="3"></a># Run all other tests that are not marked 'slow'</span>
-<span id="cb3-4"><a aria-label="4"></a>pytest -v -m "not slow"</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
 <section id="configure-via-pyproject.toml" class="slide level2">
 <h2>Configure via <code>pyproject.toml</code></h2>
+<p>Let <code>pytest</code> know about the <code>slow</code> marks</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb3-1"><a aria-label="1"></a><span class="kw">[tool.pytest]</span></span>
+<span id="cb3-2"><a aria-label="2"></a><span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb3-3"><a aria-label="3"></a>  <span class="st">"slow: marks slow tests (deselect with '-m </span><span class="sc">\"</span><span class="st">not slow</span><span class="sc">\"</span><span class="st">)"</span><span class="op">,</span></span>
+<span id="cb3-4"><a aria-label="4"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Without…</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource shell number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a aria-label="1"></a>========================= ERRORS ==============================</span>
+<span id="cb4-2"><a aria-label="2"></a>____________________________________________________________________________________________________________ ERROR collecting tests/test_example.py ______________</span>
+<span id="cb4-3"><a aria-label="3"></a>'slow' not found in `markers` configuration option</span>
+<span id="cb4-4"><a aria-label="4"></a>========================= short test summary info ======================</span>
+<span id="cb4-5"><a aria-label="5"></a>ERROR tests/test_example.py - Failed: 'slow' not found in `markers`</span>
+<span id="cb4-6"><a aria-label="6"></a>configuration option</span>
+<span id="cb4-7"><a aria-label="7"></a>========================= 1 error in 0.11s =========================</span>
+<span id="cb4-8"><a aria-label="8"></a>ERROR: Unknown marker(s) in '-m' expression: slow. Use</span>
+<span id="cb4-9"><a aria-label="9"></a>'pytest --markers' to see available markers.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example---selectively-run-tests-based-on-marks" class="slide level2">
+<h2>Example - Selectively run tests based on marks</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource shell number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a aria-label="1"></a># Run just `test_slow` that is marked with 'slow'</span>
+<span id="cb5-2"><a aria-label="2"></a>pytest -v -m "slow"</span>
+<span id="cb5-3"><a aria-label="3"></a># Run all other tests that are not marked 'slow'</span>
+<span id="cb5-4"><a aria-label="4"></a>pytest -v -m "not slow"</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="configure-permanently-via-pyproject.toml" class="slide level2">
+<h2>Configure permanently via <code>pyproject.toml</code></h2>
 <p>Configure project to exclude slow tests by default.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb4-1"><a aria-label="1"></a><span class="kw">[tool.pytest]</span></span>
-<span id="cb4-2"><a aria-label="2"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="op">[</span><span class="st">"-m"</span><span class="op">,</span> <span class="st">"not slow"</span><span class="op">]</span></span>
-<span id="cb4-3"><a aria-label="3"></a><span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb4-4"><a aria-label="4"></a>  <span class="st">"slow: marks slow tests (deselect with '-m </span><span class="sc">\"</span><span class="st">not slow</span><span class="sc">\"</span><span class="st">)"</span><span class="op">,</span></span>
-<span id="cb4-5"><a aria-label="5"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb6-1"><a aria-label="1"></a><span class="kw">[tool.pytest]</span></span>
+<span id="cb6-2"><a aria-label="2"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="op">[</span><span class="st">"-m"</span><span class="op">,</span> <span class="st">"not slow"</span><span class="op">]</span></span>
+<span id="cb6-3"><a aria-label="3"></a><span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb6-4"><a aria-label="4"></a>  <span class="st">"slow: marks slow tests (deselect with '-m </span><span class="sc">\"</span><span class="st">not slow</span><span class="sc">\"</span><span class="st">)"</span><span class="op">,</span></span>
+<span id="cb6-5"><a aria-label="5"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="automatically-add-markers" class="slide level2">
 <h2>Automatically add markers</h2>
 <ul>
 <li>Structured nomenclature of tests to indicates what the tests are doing allows <a href="https://docs.pytest.org/en/stable/example/markers.html#automatically-adding-markers-based-on-test-names" target="_blank">automation of adding markers</a> based on test names.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a aria-label="1"></a><span class="kw">def</span> test_func_function1():</span>
-<span id="cb5-2"><a aria-label="2"></a>    <span class="cf">pass</span></span>
-<span id="cb5-3"><a aria-label="3"></a></span>
-<span id="cb5-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function2():</span>
-<span id="cb5-5"><a aria-label="5"></a>    <span class="cf">pass</span></span>
-<span id="cb5-6"><a aria-label="6"></a></span>
-<span id="cb5-7"><a aria-label="7"></a><span class="kw">def</span> test_exception_keyerror():</span>
-<span id="cb5-8"><a aria-label="8"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">KeyError</span>):</span>
-<span id="cb5-9"><a aria-label="9"></a>        {<span class="st">"a"</span>: <span class="dv">0</span>, <span class="st">"b"</span>: <span class="dv">1</span>}[<span class="st">"not a key"</span>]</span>
-<span id="cb5-10"><a aria-label="10"></a></span>
-<span id="cb5-11"><a aria-label="11"></a><span class="kw">def</span> test_exception_indexerror():</span>
-<span id="cb5-12"><a aria-label="12"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">IndexError</span>):</span>
-<span id="cb5-13"><a aria-label="13"></a>        [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>][<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a aria-label="1"></a><span class="kw">def</span> test_func_function1():</span>
+<span id="cb7-2"><a aria-label="2"></a>    <span class="cf">pass</span></span>
+<span id="cb7-3"><a aria-label="3"></a></span>
+<span id="cb7-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function2():</span>
+<span id="cb7-5"><a aria-label="5"></a>    <span class="cf">pass</span></span>
+<span id="cb7-6"><a aria-label="6"></a></span>
+<span id="cb7-7"><a aria-label="7"></a><span class="kw">def</span> test_exception_keyerror():</span>
+<span id="cb7-8"><a aria-label="8"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">KeyError</span>):</span>
+<span id="cb7-9"><a aria-label="9"></a>        {<span class="st">"a"</span>: <span class="dv">0</span>, <span class="st">"b"</span>: <span class="dv">1</span>}[<span class="st">"not a key"</span>]</span>
+<span id="cb7-10"><a aria-label="10"></a></span>
+<span id="cb7-11"><a aria-label="11"></a><span class="kw">def</span> test_exception_indexerror():</span>
+<span id="cb7-12"><a aria-label="12"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">IndexError</span>):</span>
+<span id="cb7-13"><a aria-label="13"></a>        [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>][<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="configure-via-conftest.py" class="slide level2">
 <h2>Configure via <code>conftest.py</code></h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a aria-label="1"></a><span class="im">import</span> pytest</span>
-<span id="cb6-2"><a aria-label="2"></a></span>
-<span id="cb6-3"><a aria-label="3"></a><span class="kw">def</span> pytest_collection_modifyitems(items):</span>
-<span id="cb6-4"><a aria-label="4"></a>    <span class="cf">for</span> item <span class="kw">in</span> items:</span>
-<span id="cb6-5"><a aria-label="5"></a>        <span class="cf">if</span> <span class="st">"func"</span> <span class="kw">in</span> item.nodeid:</span>
-<span id="cb6-6"><a aria-label="6"></a>            item.add_marker(</span>
-<span id="cb6-7"><a aria-label="7"></a>                pytest.mark.func</span>
-<span id="cb6-8"><a aria-label="8"></a>            )</span>
-<span id="cb6-9"><a aria-label="9"></a>        <span class="cf">elif</span> <span class="st">"exception"</span> <span class="kw">in</span> item.nodeid:</span>
-<span id="cb6-10"><a aria-label="10"></a>            item.add_marker(</span>
-<span id="cb6-11"><a aria-label="11"></a>                pytest.mark.exception</span>
-<span id="cb6-12"><a aria-label="12"></a>            )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a aria-label="1"></a><span class="im">import</span> pytest</span>
+<span id="cb8-2"><a aria-label="2"></a></span>
+<span id="cb8-3"><a aria-label="3"></a><span class="kw">def</span> pytest_collection_modifyitems(items):</span>
+<span id="cb8-4"><a aria-label="4"></a>    <span class="cf">for</span> item <span class="kw">in</span> items:</span>
+<span id="cb8-5"><a aria-label="5"></a>        <span class="cf">if</span> <span class="st">"func"</span> <span class="kw">in</span> item.nodeid:</span>
+<span id="cb8-6"><a aria-label="6"></a>            item.add_marker(</span>
+<span id="cb8-7"><a aria-label="7"></a>                pytest.mark.func</span>
+<span id="cb8-8"><a aria-label="8"></a>            )</span>
+<span id="cb8-9"><a aria-label="9"></a>        <span class="cf">elif</span> <span class="st">"exception"</span> <span class="kw">in</span> item.nodeid:</span>
+<span id="cb8-10"><a aria-label="10"></a>            item.add_marker(</span>
+<span id="cb8-11"><a aria-label="11"></a>                pytest.mark.exception</span>
+<span id="cb8-12"><a aria-label="12"></a>            )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <ul>
 <li><code>@pytest.mark.func</code> added if test function includes <code>func</code>.</li>
@@ -346,20 +365,46 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 </section>
 <section id="update-pyproject.toml" class="slide level2">
 <h2>Update <code>pyproject.toml</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb7-1"><a aria-label="1"></a><span class="kw">[tool.pytest]</span></span>
-<span id="cb7-2"><a aria-label="2"></a>  <span class="dt">addopts</span> <span class="op">=</span> <span class="op">[</span><span class="st">"-m"</span><span class="op">,</span> <span class="st">"not slow"</span><span class="op">]</span></span>
-<span id="cb7-3"><a aria-label="3"></a>  <span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb7-4"><a aria-label="4"></a>    <span class="st">"slow: marks slow tests (deselect with '-m </span><span class="sc">\"</span><span class="st">not slow</span><span class="sc">\"</span><span class="st">)"</span><span class="op">,</span></span>
-<span id="cb7-5"><a aria-label="5"></a>    <span class="st">"func: marks tests of functions (dselect with '-m </span><span class="sc">\"</span><span class="st">not func</span><span class="sc">\"</span><span class="st">)"</span></span>
-<span id="cb7-6"><a aria-label="6"></a>    <span class="st">"exceptions: marks tests of exceptions (dselect with '-m </span><span class="sc">\"</span><span class="st">not exceptions</span><span class="sc">\"</span><span class="st">)"</span></span>
-<span id="cb7-7"><a aria-label="7"></a>  <span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb9-1"><a aria-label="1"></a><span class="kw">[tool.pytest]</span></span>
+<span id="cb9-2"><a aria-label="2"></a>  <span class="dt">addopts</span> <span class="op">=</span> <span class="op">[</span><span class="st">"-m"</span><span class="op">,</span> <span class="st">"not slow"</span><span class="op">]</span></span>
+<span id="cb9-3"><a aria-label="3"></a>  <span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb9-4"><a aria-label="4"></a>    <span class="st">"slow: marks slow tests (deselect with '-m </span><span class="sc">\"</span><span class="st">not slow</span><span class="sc">\"</span><span class="st">)"</span><span class="op">,</span></span>
+<span id="cb9-5"><a aria-label="5"></a>    <span class="st">"func: marks tests of functions (dselect with '-m </span><span class="sc">\"</span><span class="st">not func</span><span class="sc">\"</span><span class="st">)"</span></span>
+<span id="cb9-6"><a aria-label="6"></a>    <span class="st">"exceptions: marks tests of exceptions (dselect with '-m </span><span class="sc">\"</span><span class="st">not exceptions</span><span class="sc">\"</span><span class="st">)"</span></span>
+<span id="cb9-7"><a aria-label="7"></a>  <span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="what-marks-are-there" class="slide level2">
 <h2>What marks are there?</h2>
 <ul>
 <li>Marks may grow over time.</li>
-<li>Use <code>pytest --marks</code> to list.</li>
+<li>Use <code>pytest --markers</code> to list.</li>
+<li>Many extensions add <code>@pytest.mark</code> decorators</li>
 </ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource shell number-lines code-with-copy"><code class="sourceCode"><span id="cb10-1"><a aria-label="1"></a>@pytest.mark.slow: marks slow testes (deselect with '-m "not slow")</span>
+<span id="cb10-2"><a aria-label="2"></a></span>
+<span id="cb10-3"><a aria-label="3"></a>@pytest.mark.syrupy_snapshot: test directly or indirectly uses the snapshot fixture</span>
+<span id="cb10-4"><a aria-label="4"></a></span>
+<span id="cb10-5"><a aria-label="5"></a>@pytest.mark.no_cover: disable coverage for this test.</span>
+<span id="cb10-6"><a aria-label="6"></a></span>
+<span id="cb10-7"><a aria-label="7"></a>@pytest.mark.mpl_image_compare: Compares matplotlib figures against a baseline image</span>
+<span id="cb10-8"><a aria-label="8"></a></span>
+<span id="cb10-9"><a aria-label="9"></a>@pytest.mark.filterwarnings(warning): add a warning filter to the given test. see https://docs.pytest.org/en/stable/how-to/capture-warnings.html#pytest-mark-filterwarnings</span>
+<span id="cb10-10"><a aria-label="10"></a></span>
+<span id="cb10-11"><a aria-label="11"></a>@pytest.mark.skip(reason=None): skip the given test function with an optional reason. Example: skip(reason="no way of currently testing this") skips the test.</span>
+<span id="cb10-12"><a aria-label="12"></a></span>
+<span id="cb10-13"><a aria-label="13"></a>@pytest.mark.skipif(condition, ..., *, reason=...): skip the given test function if any of the conditions evaluate to True. Example: skipif(sys.platform == 'win32') skips the test if we are on the win32 platform. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-skipif</span>
+<span id="cb10-14"><a aria-label="14"></a></span>
+<span id="cb10-15"><a aria-label="15"></a>@pytest.mark.xfail(condition, ..., *, reason=..., run=True, raises=None, strict=strict_xfail): mark the test function as an expected failure if any of the conditions evaluate to True. Optionally specify a reason for better reporting and run=False if you don't even want to execute the test function. If only specific exception(s) are expected, you can list them in raises, and if the test fails in other ways, it will be reported as a true failure. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-xfail</span>
+<span id="cb10-16"><a aria-label="16"></a></span>
+<span id="cb10-17"><a aria-label="17"></a>@pytest.mark.parametrize(argnames, argvalues): call a test function multiple times passing in different arguments in turn. argvalues generally needs to be a list of values if argnames specifies only one name or a list of tuples of values if argnames specifies multiple names. Example: @parametrize('arg1', [1,2]) would lead to two calls of the decorated test function, one with arg1=1 and another with arg1=2.see https://docs.pytest.org/en/stable/how-to/parametrize.html for more info and examples.</span>
+<span id="cb10-18"><a aria-label="18"></a></span>
+<span id="cb10-19"><a aria-label="19"></a>@pytest.mark.usefixtures(fixturename1, fixturename2, ...): mark tests as needing all of the specified fixtures. see https://docs.pytest.org/en/stable/explanation/fixtures.html#usefixtures</span>
+<span id="cb10-20"><a aria-label="20"></a></span>
+<span id="cb10-21"><a aria-label="21"></a>@pytest.mark.tryfirst: mark a hook implementation function such that the plugin machinery will try to call it first/as early as possible. DEPRECATED, use @pytest.hookimpl(tryfirst=True) instead.</span>
+<span id="cb10-22"><a aria-label="22"></a></span>
+<span id="cb10-23"><a aria-label="23"></a>@pytest.mark.trylast: mark a hook implementation function such that the plugin machinery will try to call it last/as late as possible. DEPRECATED, use @pytest.hookimpl(trylast=True) instead.</span>
+<span id="cb10-24"><a aria-label="24"></a></span>
+<span id="cb10-25"><a aria-label="25"></a>@pytest.mark.xdist_group: specify group for tests should run in same session.in relation to one another. Provided by pytest-xdist.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="pytest.mark.skip" class="slide level2">
 <h2><code>@pytest.mark.skip</code></h2>
@@ -370,31 +415,31 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <div class="columns">
 <div class="column" style="width:50%;">
 <p>Whole function</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a aria-label="1"></a><span class="at">@pytest.mark.skip</span>(</span>
-<span id="cb8-2"><a aria-label="2"></a>    reason<span class="op">=</span><span class="st">"Don't like this test!"</span></span>
-<span id="cb8-3"><a aria-label="3"></a>)</span>
-<span id="cb8-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb8-5"><a aria-label="5"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a aria-label="1"></a><span class="at">@pytest.mark.skip</span>(</span>
+<span id="cb11-2"><a aria-label="2"></a>    reason<span class="op">=</span><span class="st">"Don't like this test!"</span></span>
+<span id="cb11-3"><a aria-label="3"></a>)</span>
+<span id="cb11-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb11-5"><a aria-label="5"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <p>Individual paramterised sets</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a aria-label="1"></a><span class="at">@pytest.mark.parameterise</span>(</span>
-<span id="cb9-2"><a aria-label="2"></a>    (<span class="st">"string"</span>),</span>
-<span id="cb9-3"><a aria-label="3"></a>    [</span>
-<span id="cb9-4"><a aria-label="4"></a>        pytest.param(</span>
-<span id="cb9-5"><a aria-label="5"></a>            <span class="st">"a"</span>,</span>
-<span id="cb9-6"><a aria-label="6"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span></span>
-<span id="cb9-7"><a aria-label="7"></a>        ),</span>
-<span id="cb9-8"><a aria-label="8"></a>        pytest.param(</span>
-<span id="cb9-9"><a aria-label="9"></a>            <span class="dv">2</span>,</span>
-<span id="cb9-10"><a aria-label="10"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
-<span id="cb9-11"><a aria-label="11"></a>            marks<span class="op">=</span>pytest.mark.skip(</span>
-<span id="cb9-12"><a aria-label="12"></a>                reason<span class="op">=</span><span class="st">"Don't like this test!"</span></span>
-<span id="cb9-13"><a aria-label="13"></a>            )</span>
-<span id="cb9-14"><a aria-label="14"></a>        ),</span>
-<span id="cb9-15"><a aria-label="15"></a>    ]</span>
-<span id="cb9-16"><a aria-label="16"></a>)</span>
-<span id="cb9-17"><a aria-label="17"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb9-18"><a aria-label="18"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a aria-label="1"></a><span class="at">@pytest.mark.parameterise</span>(</span>
+<span id="cb12-2"><a aria-label="2"></a>    (<span class="st">"string"</span>),</span>
+<span id="cb12-3"><a aria-label="3"></a>    [</span>
+<span id="cb12-4"><a aria-label="4"></a>        pytest.param(</span>
+<span id="cb12-5"><a aria-label="5"></a>            <span class="st">"a"</span>,</span>
+<span id="cb12-6"><a aria-label="6"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span></span>
+<span id="cb12-7"><a aria-label="7"></a>        ),</span>
+<span id="cb12-8"><a aria-label="8"></a>        pytest.param(</span>
+<span id="cb12-9"><a aria-label="9"></a>            <span class="dv">2</span>,</span>
+<span id="cb12-10"><a aria-label="10"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
+<span id="cb12-11"><a aria-label="11"></a>            marks<span class="op">=</span>pytest.mark.skip(</span>
+<span id="cb12-12"><a aria-label="12"></a>                reason<span class="op">=</span><span class="st">"Don't like this test!"</span></span>
+<span id="cb12-13"><a aria-label="13"></a>            )</span>
+<span id="cb12-14"><a aria-label="14"></a>        ),</span>
+<span id="cb12-15"><a aria-label="15"></a>    ]</span>
+<span id="cb12-16"><a aria-label="16"></a>)</span>
+<span id="cb12-17"><a aria-label="17"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb12-18"><a aria-label="18"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div></div>
 </section>
 <section id="pytest.mark.xfail" class="slide level2">
@@ -405,28 +450,28 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <div class="columns">
 <div class="column" style="width:50%;">
 <p>Whole function</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a aria-label="1"></a><span class="at">@pytest.mark.xfail</span>(</span>
-<span id="cb10-2"><a aria-label="2"></a>    reason<span class="op">=</span><span class="st">"I know this test fails!"</span></span>
-<span id="cb10-3"><a aria-label="3"></a>)</span>
-<span id="cb10-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb10-5"><a aria-label="5"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a aria-label="1"></a><span class="at">@pytest.mark.xfail</span>(</span>
+<span id="cb13-2"><a aria-label="2"></a>    reason<span class="op">=</span><span class="st">"I know this test fails!"</span></span>
+<span id="cb13-3"><a aria-label="3"></a>)</span>
+<span id="cb13-4"><a aria-label="4"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb13-5"><a aria-label="5"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <p>Individual paramterised sets</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a aria-label="1"></a><span class="at">@pytest.mark.parameterise</span>(</span>
-<span id="cb11-2"><a aria-label="2"></a>    (<span class="st">"string"</span>),</span>
-<span id="cb11-3"><a aria-label="3"></a>    [</span>
-<span id="cb11-4"><a aria-label="4"></a>        pytest.param(<span class="st">"a"</span>, <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span>),</span>
-<span id="cb11-5"><a aria-label="5"></a>        pytest.param(</span>
-<span id="cb11-6"><a aria-label="6"></a>            <span class="dv">2</span>,</span>
-<span id="cb11-7"><a aria-label="7"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
-<span id="cb11-8"><a aria-label="8"></a>            marks<span class="op">=</span>pytest.mark.xfail(</span>
-<span id="cb11-9"><a aria-label="9"></a>                reason<span class="op">=</span><span class="st">"I know this test fails!"</span></span>
-<span id="cb11-10"><a aria-label="10"></a>            )</span>
-<span id="cb11-11"><a aria-label="11"></a>        ),</span>
-<span id="cb11-12"><a aria-label="12"></a>    ]</span>
-<span id="cb11-13"><a aria-label="13"></a>)</span>
-<span id="cb11-14"><a aria-label="14"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb11-15"><a aria-label="15"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a aria-label="1"></a><span class="at">@pytest.mark.parameterise</span>(</span>
+<span id="cb14-2"><a aria-label="2"></a>    (<span class="st">"string"</span>),</span>
+<span id="cb14-3"><a aria-label="3"></a>    [</span>
+<span id="cb14-4"><a aria-label="4"></a>        pytest.param(<span class="st">"a"</span>, <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span>),</span>
+<span id="cb14-5"><a aria-label="5"></a>        pytest.param(</span>
+<span id="cb14-6"><a aria-label="6"></a>            <span class="dv">2</span>,</span>
+<span id="cb14-7"><a aria-label="7"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
+<span id="cb14-8"><a aria-label="8"></a>            marks<span class="op">=</span>pytest.mark.xfail(</span>
+<span id="cb14-9"><a aria-label="9"></a>                reason<span class="op">=</span><span class="st">"I know this test fails!"</span></span>
+<span id="cb14-10"><a aria-label="10"></a>            )</span>
+<span id="cb14-11"><a aria-label="11"></a>        ),</span>
+<span id="cb14-12"><a aria-label="12"></a>    ]</span>
+<span id="cb14-13"><a aria-label="13"></a>)</span>
+<span id="cb14-14"><a aria-label="14"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb14-15"><a aria-label="15"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div></div>
 </section>
 <section id="pytest.mark.skipif" class="slide level2">
@@ -438,44 +483,44 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <div class="columns">
 <div class="column" style="width:50%;">
 <p>Whole function</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a aria-label="1"></a><span class="im">import</span> os</span>
-<span id="cb12-2"><a aria-label="2"></a><span class="im">import</span> platform</span>
-<span id="cb12-3"><a aria-label="3"></a></span>
-<span id="cb12-4"><a aria-label="4"></a>GITHUB_ACTIONS <span class="op">=</span> os.getenv(<span class="st">"GITHUB_ACTIONS"</span>) <span class="op">==</span> <span class="st">"true"</span></span>
-<span id="cb12-5"><a aria-label="5"></a>OSX <span class="op">=</span> platform.system() <span class="op">==</span> <span class="st">"Darwin"</span></span>
-<span id="cb12-6"><a aria-label="6"></a></span>
-<span id="cb12-7"><a aria-label="7"></a><span class="at">@pytest.mark.skipif</span>(</span>
-<span id="cb12-8"><a aria-label="8"></a>    GITHUB_ACTIONS <span class="kw">and</span> OSX,</span>
-<span id="cb12-9"><a aria-label="9"></a>    reason<span class="op">=</span><span class="st">"Test fails in CI on OSX!"</span>)</span>
-<span id="cb12-10"><a aria-label="10"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb12-11"><a aria-label="11"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a aria-label="1"></a><span class="im">import</span> os</span>
+<span id="cb15-2"><a aria-label="2"></a><span class="im">import</span> platform</span>
+<span id="cb15-3"><a aria-label="3"></a></span>
+<span id="cb15-4"><a aria-label="4"></a>GITHUB_ACTIONS <span class="op">=</span> os.getenv(<span class="st">"GITHUB_ACTIONS"</span>) <span class="op">==</span> <span class="st">"true"</span></span>
+<span id="cb15-5"><a aria-label="5"></a>OSX <span class="op">=</span> platform.system() <span class="op">==</span> <span class="st">"Darwin"</span></span>
+<span id="cb15-6"><a aria-label="6"></a></span>
+<span id="cb15-7"><a aria-label="7"></a><span class="at">@pytest.mark.skipif</span>(</span>
+<span id="cb15-8"><a aria-label="8"></a>    GITHUB_ACTIONS <span class="kw">and</span> OSX,</span>
+<span id="cb15-9"><a aria-label="9"></a>    reason<span class="op">=</span><span class="st">"Test fails in CI on OSX!"</span>)</span>
+<span id="cb15-10"><a aria-label="10"></a><span class="kw">def</span> test_func_function1() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb15-11"><a aria-label="11"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <p>Individual paramterised sets</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a aria-label="1"></a><span class="im">import</span> os</span>
-<span id="cb13-2"><a aria-label="2"></a><span class="im">import</span> platform</span>
-<span id="cb13-3"><a aria-label="3"></a></span>
-<span id="cb13-4"><a aria-label="4"></a>GITHUB_ACTIONS <span class="op">=</span> os.getenv(<span class="st">"GITHUB_ACTIONS"</span>) <span class="op">==</span> <span class="st">"true"</span></span>
-<span id="cb13-5"><a aria-label="5"></a>OSX <span class="op">=</span> platform.system() <span class="op">==</span> <span class="st">"Darwin"</span></span>
-<span id="cb13-6"><a aria-label="6"></a></span>
-<span id="cb13-7"><a aria-label="7"></a><span class="at">@pytest.mark.parameterise</span>(</span>
-<span id="cb13-8"><a aria-label="8"></a>    (<span class="st">"string"</span>),</span>
-<span id="cb13-9"><a aria-label="9"></a>    [</span>
-<span id="cb13-10"><a aria-label="10"></a>        pytest.param(</span>
-<span id="cb13-11"><a aria-label="11"></a>            <span class="st">"a"</span>,</span>
-<span id="cb13-12"><a aria-label="12"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span></span>
-<span id="cb13-13"><a aria-label="13"></a>        ),</span>
-<span id="cb13-14"><a aria-label="14"></a>        pytest.param(</span>
-<span id="cb13-15"><a aria-label="15"></a>            <span class="dv">2</span>,</span>
-<span id="cb13-16"><a aria-label="16"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
-<span id="cb13-17"><a aria-label="17"></a>            marks<span class="op">=</span>pytest.mark.skipif(</span>
-<span id="cb13-18"><a aria-label="18"></a>                GITHUB_ACTIONS <span class="kw">and</span> OSX,</span>
-<span id="cb13-19"><a aria-label="19"></a>                reason<span class="op">=</span><span class="st">"Test fails in CI on OSX!"</span></span>
-<span id="cb13-20"><a aria-label="20"></a>            )</span>
-<span id="cb13-21"><a aria-label="21"></a>        ),</span>
-<span id="cb13-22"><a aria-label="22"></a>    ]</span>
-<span id="cb13-23"><a aria-label="23"></a>)</span>
-<span id="cb13-24"><a aria-label="24"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb13-25"><a aria-label="25"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a aria-label="1"></a><span class="im">import</span> os</span>
+<span id="cb16-2"><a aria-label="2"></a><span class="im">import</span> platform</span>
+<span id="cb16-3"><a aria-label="3"></a></span>
+<span id="cb16-4"><a aria-label="4"></a>GITHUB_ACTIONS <span class="op">=</span> os.getenv(<span class="st">"GITHUB_ACTIONS"</span>) <span class="op">==</span> <span class="st">"true"</span></span>
+<span id="cb16-5"><a aria-label="5"></a>OSX <span class="op">=</span> platform.system() <span class="op">==</span> <span class="st">"Darwin"</span></span>
+<span id="cb16-6"><a aria-label="6"></a></span>
+<span id="cb16-7"><a aria-label="7"></a><span class="at">@pytest.mark.parameterise</span>(</span>
+<span id="cb16-8"><a aria-label="8"></a>    (<span class="st">"string"</span>),</span>
+<span id="cb16-9"><a aria-label="9"></a>    [</span>
+<span id="cb16-10"><a aria-label="10"></a>        pytest.param(</span>
+<span id="cb16-11"><a aria-label="11"></a>            <span class="st">"a"</span>,</span>
+<span id="cb16-12"><a aria-label="12"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test1"</span></span>
+<span id="cb16-13"><a aria-label="13"></a>        ),</span>
+<span id="cb16-14"><a aria-label="14"></a>        pytest.param(</span>
+<span id="cb16-15"><a aria-label="15"></a>            <span class="dv">2</span>,</span>
+<span id="cb16-16"><a aria-label="16"></a>            <span class="bu">id</span><span class="op">=</span><span class="st">"test2"</span>,</span>
+<span id="cb16-17"><a aria-label="17"></a>            marks<span class="op">=</span>pytest.mark.skipif(</span>
+<span id="cb16-18"><a aria-label="18"></a>                GITHUB_ACTIONS <span class="kw">and</span> OSX,</span>
+<span id="cb16-19"><a aria-label="19"></a>                reason<span class="op">=</span><span class="st">"Test fails in CI on OSX!"</span></span>
+<span id="cb16-20"><a aria-label="20"></a>            )</span>
+<span id="cb16-21"><a aria-label="21"></a>        ),</span>
+<span id="cb16-22"><a aria-label="22"></a>    ]</span>
+<span id="cb16-23"><a aria-label="23"></a>)</span>
+<span id="cb16-24"><a aria-label="24"></a><span class="kw">def</span> test_func_function1(string: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb16-25"><a aria-label="25"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(string, <span class="bu">str</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div></div>
 </section>
 <section id="pytest-testmon" class="slide level2">
@@ -488,32 +533,32 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <blockquote>
 <p>a pytest plugin which selects and executes only tests you need to run. It does this by collecting dependencies between tests and all executed code (internally using Coverage.py) and comparing the dependencies against changes. testmon updates its database on each test execution, so it works independently of version control.</p>
 </blockquote>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb14-1"><a aria-label="1"></a><span class="kw">[dependency-groups]</span></span>
-<span id="cb14-2"><a aria-label="2"></a><span class="dt">tests</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb14-3"><a aria-label="3"></a>  <span class="er">...</span></span>
-<span id="cb14-4"><a aria-label="4"></a>  <span class="st">"pytest-testmon"</span></span>
-<span id="cb14-5"><a aria-label="5"></a>  <span class="er">...</span></span>
-<span id="cb14-6"><a aria-label="6"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb17-1"><a aria-label="1"></a><span class="kw">[dependency-groups]</span></span>
+<span id="cb17-2"><a aria-label="2"></a><span class="dt">tests</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb17-3"><a aria-label="3"></a>  <span class="er">...</span></span>
+<span id="cb17-4"><a aria-label="4"></a>  <span class="st">"pytest-testmon"</span></span>
+<span id="cb17-5"><a aria-label="5"></a>  <span class="er">...</span></span>
+<span id="cb17-6"><a aria-label="6"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="as-a-pre-commit-hook" class="slide level2">
 <h2>As a <code>pre-commit</code> hook</h2>
 <ul>
 <li>On commits <code>pytest --testmon</code> run only on affected changes.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource yaml number-lines code-with-copy"><code class="sourceCode yaml"><span id="cb15-1"><a aria-label="1"></a><span class="at">   </span><span class="kw">-</span><span class="at"> </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> local</span></span>
-<span id="cb15-2"><a aria-label="2"></a><span class="at">     </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb15-3"><a aria-label="3"></a><span class="at">       </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> pytest</span></span>
-<span id="cb15-4"><a aria-label="4"></a><span class="at">         </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Pytest (testmon)</span></span>
-<span id="cb15-5"><a aria-label="5"></a><span class="at">         </span><span class="fu">entry</span><span class="kw">:</span><span class="at"> pytest --testmon</span></span>
-<span id="cb15-6"><a aria-label="6"></a><span class="at">         </span><span class="fu">language</span><span class="kw">:</span><span class="at"> system</span></span>
-<span id="cb15-7"><a aria-label="7"></a><span class="at">         </span><span class="fu">files</span><span class="kw">:</span><span class="at"> \.py$</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource yaml number-lines code-with-copy"><code class="sourceCode yaml"><span id="cb18-1"><a aria-label="1"></a><span class="at">   </span><span class="kw">-</span><span class="at"> </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> local</span></span>
+<span id="cb18-2"><a aria-label="2"></a><span class="at">     </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb18-3"><a aria-label="3"></a><span class="at">       </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> pytest</span></span>
+<span id="cb18-4"><a aria-label="4"></a><span class="at">         </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Pytest (testmon)</span></span>
+<span id="cb18-5"><a aria-label="5"></a><span class="at">         </span><span class="fu">entry</span><span class="kw">:</span><span class="at"> pytest --testmon</span></span>
+<span id="cb18-6"><a aria-label="6"></a><span class="at">         </span><span class="fu">language</span><span class="kw">:</span><span class="at"> system</span></span>
+<span id="cb18-7"><a aria-label="7"></a><span class="at">         </span><span class="fu">files</span><span class="kw">:</span><span class="at"> \.py$</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
 <ul>
 <li>Lots of different strategies for managing test suite!</li>
 <li>Structured nomenclature of tests can be very useful.</li>
-<li>Use any or many of these to speed up the feedback loop.</li>
+<li>Use any or many of these to speed up the feedback loop. 🪄</li>
 </ul>
 
 
@@ -525,7 +570,7 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 <p> </p>
 </div>
 <div class="header-text">
-<p>Quarto RevealJS Template</p>
+<p>Pytest Marks - Organising your Test Suite</p>
 </div>
 <div class="sb-title">
 <p> </p>
@@ -570,7 +615,7 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"\u003ci class=\"fas fa-gear\">\u003c/i>","content":"\u003cul class=\"slide-menu-items\">\n\u003cli class=\"slide-tool-item active\" data-item=\"0\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\">\u003ckbd>f\u003c/kbd> Fullscreen\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"1\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\">\u003ckbd>s\u003c/kbd> Speaker View\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"2\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\">\u003ckbd>o\u003c/kbd> Slide Overview\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"3\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\">\u003ckbd>e\u003c/kbd> PDF Export Mode\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"4\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\">\u003ckbd>r\u003c/kbd> Scroll View Mode\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"5\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\">\u003ckbd>b\u003c/kbd> Toggle Chalkboard\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"6\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\">\u003ckbd>c\u003c/kbd> Toggle Notes Canvas\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"7\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\">\u003ckbd>d\u003c/kbd> Download Drawings\u003c/a>\u003c/li>\n\u003cli class=\"slide-tool-item\" data-item=\"8\">\u003ca href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\">\u003ckbd>?\u003c/kbd> Keyboard Help\u003c/a>\u003c/li>\n\u003c/ul>"}],"openButton":true,"openButtonLabel":"Slide menu"},
 'chalkboard': {"buttons":true},
 'confetti': {"particleCount":50,"angle":90,"spread":45,"startVelocity":45,"decay":0.9,"gravity":1,"drift":0,"ticks":200,"colors":null,"shapes":null,"scalar":1,"zIndex":100,"disableForReducedMotion":false},
 'smaller': false,
@@ -827,7 +872,8 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
               return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
           }
           // Inspect non-navigation links and adorn them if external
-         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          window.quartoDecorateExternalLinks = function (root) {
+         var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
           for (var i=0; i<links.length; i++) {
             const link = links[i];
             if (!isInternal(link.href)) {
@@ -836,8 +882,69 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
               if (link.dataset.originalHref !== undefined) {
                 link.href = link.dataset.originalHref;
               }
+              if (!link.classList.contains('no-external-icon')) {
+              }
             }
           }
+          };
+          window.quartoDecorateExternalLinks(window.document);
+        // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+        // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+        const hideOnEscAndFocusOut = {
+          name: 'hideOnEscAndFocusOut',
+          defaultValue: true,
+          fn(instance) {
+            const dismiss = () => {
+              // A show scheduled by the trigger delay would otherwise reopen it
+              instance.clearDelayTimeouts();
+              instance.hide();
+            };
+            const onKeyDown = (event) => {
+              if (event.key !== 'Escape') {
+                return;
+              }
+              // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+              // except an open reveal.js slide menu, which Esc should close too.
+              // The menu handles keys only when its keyboard option is on.
+              const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+                window.Reveal.getConfig().menu?.keyboard !== false;
+              if (!menuHandlesEsc) {
+                event.stopPropagation();
+              }
+              if (instance.popper.contains(window.document.activeElement)) {
+                // Disabled while refocusing so the focus trigger does not reopen it
+                instance.disable();
+                instance.reference.focus();
+                instance.enable();
+              }
+              dismiss();
+            };
+            const onFocusOut = (event) => {
+              const target = event.relatedTarget;
+              if (target && !instance.reference.contains(target) &&
+                  !instance.popper.contains(target)) {
+                dismiss();
+              }
+            };
+            // On the trigger too: a click trigger (code-annotations: select) has no
+            // blur handling. Attached for the instance's lifetime so leaving the
+            // trigger also cancels a show still pending on the trigger delay.
+            instance.reference.addEventListener('focusout', onFocusOut);
+            return {
+              onShow() {
+                window.document.addEventListener('keydown', onKeyDown, true);
+                instance.popper.addEventListener('focusout', onFocusOut);
+              },
+              onHide() {
+                window.document.removeEventListener('keydown', onKeyDown, true);
+                instance.popper.removeEventListener('focusout', onFocusOut);
+              },
+              onDestroy() {
+                instance.reference.removeEventListener('focusout', onFocusOut);
+              },
+            };
+          },
+        };
         function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
           const config = {
             allowHTML: true,
@@ -851,6 +958,7 @@ Neil Shephard <a href="https://orcid.org/0000-0001-8301-6857" class="quarto-titl
             interactiveBorder: 10,
             theme: 'light-border',
             placement: 'bottom-start',
+            plugins: [hideOnEscAndFocusOut],
           };
           if (contentFn) {
             config.content = contentFn;
