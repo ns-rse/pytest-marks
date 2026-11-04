@@ -2,120 +2,120 @@
   {
     "objectID": "index.html#scan-this",
     "href": "index.html#scan-this",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Scan This",
     "text": "Scan This\n\n\n    \nns-rse.github.io/pytest-marks"
   },
   {
     "objectID": "index.html#pytest",
     "href": "index.html#pytest",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Pytest",
     "text": "Pytest\n\nPytest alternative to unittest\nExtensible (lots of plugins)\nEasy to setup fixtures.\nEasy to parameterise.\n\nWhy?\n\nSomething new I learnt I thought would be useful to share.\nI already wrote a blog post."
   },
   {
     "objectID": "index.html#test-development",
     "href": "index.html#test-development",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Test Development",
     "text": "Test Development\n\nDon’t always want to run the whole test suite during development\nMay have a test that takes a long time e.g. test-slow\nRun just test_slow1…\n\npytest tests/test_something.py::test_slow\n\nDoesn’t exclude test_slow from the whole suite.\nIf test_slow takes a long time running whole suite delays feedback loop.\nSolution - Create your own marks to select which tests are run\n\nCan dispatch individual tests from within Emacs using python-pytest 😉"
   },
   {
     "objectID": "index.html#example---test-with-pytest.mark.",
     "href": "index.html#example---test-with-pytest.mark.",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Example - Test with @pytest.mark.*",
     "text": "Example - Test with @pytest.mark.*\nimport time\nimport pytest\n\n@pytest.mark.slow\ndef test_slow() -&gt; None:\n    \"\"\"A dummy test that takes a an hour to run.\"\"\"\n    time.sleep(60*60)\n    pass\n\ndef test_quick() -&gt; None:\n    \"\"\"A dummy test that takes 2 seconds to run.\"\"\"\n    time.sleep(2)\n    pass\n\ndef test_very_fast() -&gt; None:\n    \"\"\"A dummy test that takes 1 second to run.\"\"\"\n    time.sleep(1)\n    pass"
   },
   {
     "objectID": "index.html#configure-via-pyproject.toml",
     "href": "index.html#configure-via-pyproject.toml",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Configure via pyproject.toml",
     "text": "Configure via pyproject.toml\nLet pytest know about the slow marks\n[tool.pytest]\nmarkers = [\n  \"slow: marks slow tests (deselect with '-m \\\"not slow\\\")\",\n]\nWithout…\n========================= ERRORS ==============================\n____________________________________________________________________________________________________________ ERROR collecting tests/test_example.py ______________\n'slow' not found in `markers` configuration option\n========================= short test summary info ======================\nERROR tests/test_example.py - Failed: 'slow' not found in `markers`\nconfiguration option\n========================= 1 error in 0.11s =========================\nERROR: Unknown marker(s) in '-m' expression: slow. Use\n'pytest --markers' to see available markers."
   },
   {
     "objectID": "index.html#example---selectively-run-tests-based-on-marks",
     "href": "index.html#example---selectively-run-tests-based-on-marks",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Example - Selectively run tests based on marks",
     "text": "Example - Selectively run tests based on marks\n# Run just `test_slow` that is marked with 'slow'\npytest -v -m \"slow\"\n# Run all other tests that are not marked 'slow'\npytest -v -m \"not slow\""
   },
   {
     "objectID": "index.html#configure-permanently-via-pyproject.toml",
     "href": "index.html#configure-permanently-via-pyproject.toml",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Configure permanently via pyproject.toml",
     "text": "Configure permanently via pyproject.toml\nConfigure project to exclude slow tests by default.\n[tool.pytest]\naddopts = [\"-m\", \"not slow\"]\nmarkers = [\n  \"slow: marks slow tests (deselect with '-m \\\"not slow\\\")\",\n]"
   },
   {
     "objectID": "index.html#automatically-add-markers",
     "href": "index.html#automatically-add-markers",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Automatically add markers",
     "text": "Automatically add markers\n\nStructured nomenclature of tests to indicates what the tests are doing allows automation of adding markers based on test names.\n\ndef test_func_function1():\n    pass\n\ndef test_func_function2():\n    pass\n\ndef test_exception_keyerror():\n    with pytest.raises(KeyError):\n        {\"a\": 0, \"b\": 1}[\"not a key\"]\n\ndef test_exception_indexerror():\n    with pytest.raises(IndexError):\n        [0, 1, 2][3]"
   },
   {
     "objectID": "index.html#configure-via-conftest.py",
     "href": "index.html#configure-via-conftest.py",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Configure via conftest.py",
     "text": "Configure via conftest.py\n\n\nimport pytest\n\ndef pytest_collection_modifyitems(items):\n    for item in items:\n        if \"func\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.func\n            )\n        elif \"exception\" in item.nodeid:\n            item.add_marker(\n                pytest.mark.exception\n            )\n\n\n@pytest.mark.func added if test function includes func.\n@pytest.mark.exception added if test function includes exception."
   },
   {
     "objectID": "index.html#update-pyproject.toml",
     "href": "index.html#update-pyproject.toml",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Update pyproject.toml",
     "text": "Update pyproject.toml\n[tool.pytest]\n  addopts = [\"-m\", \"not slow\"]\n  markers = [\n    \"slow: marks slow tests (deselect with '-m \\\"not slow\\\")\",\n    \"func: marks tests of functions (dselect with '-m \\\"not func\\\")\"\n    \"exceptions: marks tests of exceptions (dselect with '-m \\\"not exceptions\\\")\"\n  ]"
   },
   {
     "objectID": "index.html#what-marks-are-there",
     "href": "index.html#what-marks-are-there",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "What marks are there?",
     "text": "What marks are there?\n\nMarks may grow over time.\nUse pytest --markers to list.\nMany extensions add @pytest.mark decorators\n\n@pytest.mark.slow: marks slow testes (deselect with '-m \"not slow\")\n\n@pytest.mark.syrupy_snapshot: test directly or indirectly uses the snapshot fixture\n\n@pytest.mark.no_cover: disable coverage for this test.\n\n@pytest.mark.mpl_image_compare: Compares matplotlib figures against a baseline image\n\n@pytest.mark.filterwarnings(warning): add a warning filter to the given test. see https://docs.pytest.org/en/stable/how-to/capture-warnings.html#pytest-mark-filterwarnings\n\n@pytest.mark.skip(reason=None): skip the given test function with an optional reason. Example: skip(reason=\"no way of currently testing this\") skips the test.\n\n@pytest.mark.skipif(condition, ..., *, reason=...): skip the given test function if any of the conditions evaluate to True. Example: skipif(sys.platform == 'win32') skips the test if we are on the win32 platform. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-skipif\n\n@pytest.mark.xfail(condition, ..., *, reason=..., run=True, raises=None, strict=strict_xfail): mark the test function as an expected failure if any of the conditions evaluate to True. Optionally specify a reason for better reporting and run=False if you don't even want to execute the test function. If only specific exception(s) are expected, you can list them in raises, and if the test fails in other ways, it will be reported as a true failure. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-xfail\n\n@pytest.mark.parametrize(argnames, argvalues): call a test function multiple times passing in different arguments in turn. argvalues generally needs to be a list of values if argnames specifies only one name or a list of tuples of values if argnames specifies multiple names. Example: @parametrize('arg1', [1,2]) would lead to two calls of the decorated test function, one with arg1=1 and another with arg1=2.see https://docs.pytest.org/en/stable/how-to/parametrize.html for more info and examples.\n\n@pytest.mark.usefixtures(fixturename1, fixturename2, ...): mark tests as needing all of the specified fixtures. see https://docs.pytest.org/en/stable/explanation/fixtures.html#usefixtures\n\n@pytest.mark.tryfirst: mark a hook implementation function such that the plugin machinery will try to call it first/as early as possible. DEPRECATED, use @pytest.hookimpl(tryfirst=True) instead.\n\n@pytest.mark.trylast: mark a hook implementation function such that the plugin machinery will try to call it last/as late as possible. DEPRECATED, use @pytest.hookimpl(trylast=True) instead.\n\n@pytest.mark.xdist_group: specify group for tests should run in same session.in relation to one another. Provided by pytest-xdist."
   },
   {
     "objectID": "index.html#pytest.mark.skip",
     "href": "index.html#pytest.mark.skip",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "@pytest.mark.skip",
     "text": "@pytest.mark.skip\n\nSkip an individual test.\n@pytest.mark.skip(reason=\"Don't like this test!\")\n\n\n\nWhole function\n@pytest.mark.skip(\n    reason=\"Don't like this test!\"\n)\ndef test_func_function1() -&gt; None:\n    pass\n\nIndividual paramterised sets\n@pytest.mark.parameterise(\n    (\"string\"),\n    [\n        pytest.param(\n            \"a\",\n            id=\"test1\"\n        ),\n        pytest.param(\n            2,\n            id=\"test2\",\n            marks=pytest.mark.skip(\n                reason=\"Don't like this test!\"\n            )\n        ),\n    ]\n)\ndef test_func_function1(string: str) -&gt; None:\n    assert isinstance(string, str)"
   },
   {
     "objectID": "index.html#pytest.mark.xfail",
     "href": "index.html#pytest.mark.xfail",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "@pytest.mark.xfail",
     "text": "@pytest.mark.xfail\n\n@pytest.mark.xfail(reason=\"I know this test fails!\")\n\n\n\nWhole function\n@pytest.mark.xfail(\n    reason=\"I know this test fails!\"\n)\ndef test_func_function1() -&gt; None:\n    pass\n\nIndividual paramterised sets\n@pytest.mark.parameterise(\n    (\"string\"),\n    [\n        pytest.param(\"a\", id=\"test1\"),\n        pytest.param(\n            2,\n            id=\"test2\",\n            marks=pytest.mark.xfail(\n                reason=\"I know this test fails!\"\n            )\n        ),\n    ]\n)\ndef test_func_function1(string: str) -&gt; None:\n    assert isinstance(string, str)"
   },
   {
     "objectID": "index.html#pytest.mark.skipif",
     "href": "index.html#pytest.mark.skipif",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "@pytest.mark.skipif",
     "text": "@pytest.mark.skipif\n\n@pytest.mark.skipif(reason=\"Don't like this test!\")\nUseful if you now a test always fails on CI in a particular environment or Python version.\n\n\n\nWhole function\nimport os\nimport platform\n\nGITHUB_ACTIONS = os.getenv(\"GITHUB_ACTIONS\") == \"true\"\nOSX = platform.system() == \"Darwin\"\n\n@pytest.mark.skipif(\n    GITHUB_ACTIONS and OSX,\n    reason=\"Test fails in CI on OSX!\")\ndef test_func_function1() -&gt; None:\n    pass\n\nIndividual paramterised sets\nimport os\nimport platform\n\nGITHUB_ACTIONS = os.getenv(\"GITHUB_ACTIONS\") == \"true\"\nOSX = platform.system() == \"Darwin\"\n\n@pytest.mark.parameterise(\n    (\"string\"),\n    [\n        pytest.param(\n            \"a\",\n            id=\"test1\"\n        ),\n        pytest.param(\n            2,\n            id=\"test2\",\n            marks=pytest.mark.skipif(\n                GITHUB_ACTIONS and OSX,\n                reason=\"Test fails in CI on OSX!\"\n            )\n        ),\n    ]\n)\ndef test_func_function1(string: str) -&gt; None:\n    assert isinstance(string, str)"
   },
   {
     "objectID": "index.html#pytest-testmon",
     "href": "index.html#pytest-testmon",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Pytest testmon",
     "text": "Pytest testmon\n\nChanges typically small\nOnly impact subset of tests\n🪄 Pytest testmon 🪄\n\n\na pytest plugin which selects and executes only tests you need to run. It does this by collecting dependencies between tests and all executed code (internally using Coverage.py) and comparing the dependencies against changes. testmon updates its database on each test execution, so it works independently of version control.\n\n[dependency-groups]\ntests = [\n  ...\n  \"pytest-testmon\"\n  ...\n]"
   },
   {
     "objectID": "index.html#as-a-pre-commit-hook",
     "href": "index.html#as-a-pre-commit-hook",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "As a pre-commit hook",
     "text": "As a pre-commit hook\n\nOn commits pytest --testmon run only on affected changes.\n\n   - repo: local\n     hooks:\n       - id: pytest\n         name: Pytest (testmon)\n         entry: pytest --testmon\n         language: system\n         files: \\.py$"
   },
   {
     "objectID": "index.html#summary",
     "href": "index.html#summary",
-    "title": "Pytest Marks - Organising your Test Suite",
+    "title": "Organising your Test Suite with Pytest Marks",
     "section": "Summary",
-    "text": "Summary\n\nLots of different strategies for managing test suite!\nStructured nomenclature of tests can be very useful.\nUse any or many of these to speed up the feedback loop. 🪄\n\n\n\n\n\n\n\n\n \n\n\nPytest Marks - Organising your Test Suite"
+    "text": "Summary\n\nLots of different strategies for managing test suite!\nStructured nomenclature of tests can be very useful.\nUse any or many of these to speed up the feedback loop. 🪄\n\n\n\n\n\n\n\n\n \n\n\nOrganising your Test Suite with Pytest Marks"
   }
 ]

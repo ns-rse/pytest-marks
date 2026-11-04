@@ -1,5 +1,5 @@
 ---
-title: "Pytest Marks - Organising your Test Suite"
+title: "Organising your Test Suite with Pytest Marks"
 # format: revealjs
 author:
   - name: Neil Shephard
@@ -16,7 +16,7 @@ format:
     chalkboard: true
     # embed-resources: true
     # standalone: true
-    header: Pytest Marks - Organising your Test Suite
+    header: Organising your Test Suite with Pytest Marks
     scrollable: true
 revealjs-plugins:
   - confetti
